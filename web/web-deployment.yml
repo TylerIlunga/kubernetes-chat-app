@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-web-deployment
+spec:
+  selector:
+    matchLabels:
+      app: chat-web-pod
+  template:
+    metadata:
+      labels:
+        app: chat-web-pod
+    spec:
+      containers:
+      - name: chat-web-container
+        image: tylerilunga/chatapp:web1.0
+        resources:
+          limits:
+            memory: "128Mi"
+            cpu: "300m"
+        ports:
+        - name: chat-w-port
+          containerPort: 4444

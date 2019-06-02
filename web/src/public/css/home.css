@@ -1,0 +1,11 @@
+html {
+  background: linear-gradient(320deg, #f80759 0%, #bc4e9c 100%) no-repeat fixed
+    center;
+}
+
+h3,
+span,
+label,
+p {
+  color: white;
+}

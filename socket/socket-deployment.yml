@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chat-socket-deployment
+spec:
+  selector:
+    matchLabels:
+      app: chat-socket-pod
+  template:
+    metadata:
+      labels:
+        app: chat-socket-pod
+    spec:
+      initContainers:
+      - name: chat-redis-container
+        image: redis
+        ports:
+          - containerPort: 6379
+      containers:
+      - name: chat-socket-container
+        image: tylerilunga/chatapp:socket1.0
+        env:
+        - name: REDISHOST
+          value: "chat-redis-container"
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        ports:
+        - name: chat-s-port
+          containerPort: 2222
