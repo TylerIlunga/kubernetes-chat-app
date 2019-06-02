@@ -3,6 +3,75 @@ html {
     center;
 }
 
+.chat-container {
+  height: 100vh;
+  width: 100%;
+  display: grid;
+  grid-template-rows: 10% 85% 5%;
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5px;
+}
+
+.logs-container {
+  height: 100%;
+  width: 100%;
+}
+
+#messages {
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.message-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5px;
+}
+
+.input-container {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 95% 5%;
+}
+
+#chat-input {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid white;
+  color: white;
+  font-size: 15px;
+}
+
+#chat-input::placeholder {
+  color: white;
+  opacity: 0.5;
+}
+
+#chat-input:focus {
+  outline: none;
+}
+
+#chat-send-button {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
+  font-size: 15px;
+  text-align: center;
+}
+
+#chat-send-button:hover {
+  background: white;
+  color: black;
+}
+
 h3,
 span,
 label,

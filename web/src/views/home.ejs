@@ -3,27 +3,26 @@
   <% include partials/headHome.ejs %>
   <body>
     <div class="home-container">
-    <div class="header">
-        <div class="home-header-title">
-            <h3><%= viewData.appTitle %></h3>
+        <% include partials/header.ejs %>
+        <div class="main">
+            <div class="username-container">
+                <h3 class="username-label">Username</h3>
+                <input type="text" id="username">
+            </div>
+            <br/>
+            <div class="room-options-container">
+                <div class="options-container">
+                    <span>Create</span> <input type="checkbox" id="room-option-create" onClick="roomOptionChoice(true, false)">
+                    <span>Join</span> <input type="checkbox" id="room-option-join" onClick="roomOptionChoice(false, true)">
+                </div>
+                <br/>
+                <div class="room-input-container">
+                    <label class="room-label">Room:</label>
+                    <input type="text" class="username-form-input" id="roomID"/>
+                    <button type="submit" class="username-form-button" onClick="joinRoom()">Enter</button>
+                </div>
+            </div>
         </div>
-        <div id="home-header-count">
-            <span>Total Users:</span> <span id="totalUsers"></span>
-        </div>
-    </div>
-    <div class="username-container">
-        <h3 class="room-label">Enter a username:</h3>
-        <input type="text" id="username">
-    </div>
-   <div class="room-options">
-        <h3 class="room-label">Choose an option:</h3>
-        <span>Create</span> <input type="checkbox" id="room-option-create" onClick="roomOptionChoice(true, false)">
-        <span>Join</span> <input type="checkbox" id="room-option-join" onClick="roomOptionChoice(false, true)">
-        <br/>
-        <label class="username-label">Room ID:</label>
-        <input type="text" class="username-form-input" id="roomID"/>
-   </div>
-    <button type="submit" class="username-form-button" onClick="joinRoom()">Sumbit</button>
    </div>
   </body>
   </div>

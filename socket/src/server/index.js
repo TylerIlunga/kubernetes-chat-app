@@ -56,7 +56,6 @@ const joinRoom = (socket, data) => {
   console.log('room id: ', room);
   socket.join(room);
   userData.room = room;
-  userData[socket.id] = data.username;
   publish(room, socket, {
     type: 'self',
     method: 'connectedToRoom',
@@ -69,17 +68,18 @@ const joinRoom = (socket, data) => {
 
 const sendMessage = (data, socket) => {
   logEventDetails('sendMessage', data);
+  const username = data.username;
   publish(userData.room, socket, {
     type: 'allConnectedToRoom',
     method: 'roomNotification',
     data: dataAsBytes({
       type: 'messageReceived',
       message: {
+        username,
         id: data.id,
-        username: data.username,
         message: data.message,
         likes: 0,
-      }, // { username: string, message: string }
+      },
     }),
   });
 };

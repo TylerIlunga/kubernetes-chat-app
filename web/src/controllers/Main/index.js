@@ -1,6 +1,7 @@
+const appTitle = 'Chatty :)';
 module.exports = {
   home(req, res) {
-    const viewData = { appTitle: 'chatty', headerTitle: 'Home' };
+    const viewData = { appTitle, headerTitle: 'Home' };
     res.render('home', { viewData });
   },
   chat(req, res) {
@@ -8,7 +9,8 @@ module.exports = {
       return res.redirect('/404');
     }
     const viewData = {
-      appTitle: 'chatty',
+      appTitle,
+      headerTitle: `Room: ${req.query.room}`,
       room: req.query.room,
       username: req.query.username,
     };

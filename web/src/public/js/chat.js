@@ -1,3 +1,16 @@
+(() => {
+  setTimeout(() => {
+    document
+      .getElementById('chat-input')
+      .addEventListener('keyup', function(e) {
+        const event = e || window.event;
+        const charCode = event.which || event.keyCode;
+        const username = document.getElementById('chat-input').placeholder;
+        if (charCode === 13) sendMessage(username);
+      });
+  }, 100);
+})();
+
 const sendMessage = username => {
   console.log('sendMessage()', username);
   const message = document.getElementById('chat-input').value;
@@ -47,9 +60,9 @@ const populateMessages = message => {
   <% messages.forEach(function(message){ %>
     <div class="message-container">
         <div class="message-displayed">
-         <p class="message-user"><%= message.username%>: <%= message.message%></p>
+         <p class="message-user"><%- message.username %>: <%- message.message %></p>
         </div> 
-        <div id="heart-img" onClick="likeMessage('<%= message.username%>', '<%= message.message%>', '<%= message.id%>')">
+        <div id="heart-img" onClick="likeMessage('<%- message.username %>', '<%- message.message %>', '<%- message.id %>')">
             <i class="fa fa-heart red"></i> <%= message.likes%>
         </div>
     </div>
