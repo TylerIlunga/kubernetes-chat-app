@@ -1,16 +1,12 @@
 /** ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  *  File name     :  ./server
- *  Purpose       :  Module for the server.
+ *  Purpose       :  Module for the chat's socket server.
  *  Author        :  Tyler Ilunga
- *  Date          :  2019-04-19
- *  Description   :  Module that initializes the server for the API
- *  Notes         :  1
+ *  Date          :  2019-06-02
  *  Warnings      :  None
  *  Exceptions    :  N/A
  * ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ */
 
-// NOTE: require("dotenv").load() for command line operation
-// of loading in environment variables for private files
 const config = require('../config');
 const app = require('http').createServer((req, res) => {
   console.log('server created.');
@@ -24,93 +20,14 @@ const io = require('socket.io').listen(app);
 const redisAdapter = require('socket.io-redis');
 io.adapter(redisAdapter({ host: config.redis.host, port: config.redis.port }));
 
+const c = require('../helpers/Converter');
+const Converter = new c();
+const r = require('../helpers/Room');
+const Room = new r(io, Converter);
+
 const userData = { room: null };
 
 /** Helper Methods */
-const logEventDetails = (eventName, data) => {
-  console.log(`${eventName} event fired: `, data);
-};
-
-const dataAsBytes = data => {
-  return config.toUTF8Array(JSON.stringify(data));
-};
-
-const fromBytesToObject = data => {
-  return JSON.parse(config.fromUTF8Array(data));
-};
-
-const publish = (room, socket, jsonData) => {
-  console.log(`Room ${room} to receive message: `, jsonData);
-  switch (jsonData.type) {
-    case 'self':
-      return socket.emit(jsonData.method, jsonData.data);
-    case 'allConnectedToServer':
-      return io.sockets.emit(jsonData.method, jsonData.data);
-    case 'allConnectedToRoom':
-      return io.in(room).emit(jsonData.method, jsonData.data);
-  }
-};
-
-const joinRoom = (socket, data) => {
-  const room = data.roomID;
-  console.log('room id: ', room);
-  socket.join(room);
-  userData.room = room;
-  publish(room, socket, {
-    type: 'self',
-    method: 'connectedToRoom',
-    data: dataAsBytes({
-      room,
-      username: data.username,
-    }),
-  });
-};
-
-const sendMessage = (data, socket) => {
-  logEventDetails('sendMessage', data);
-  const username = data.username;
-  publish(userData.room, socket, {
-    type: 'allConnectedToRoom',
-    method: 'roomNotification',
-    data: dataAsBytes({
-      type: 'messageReceived',
-      message: {
-        username,
-        id: data.id,
-        message: data.message,
-        likes: 0,
-      },
-    }),
-  });
-};
-
-const likeMessage = (data, socket) => {
-  logEventDetails('commentMessage', data);
-  publish(userData.room, socket, {
-    type: 'allConnectedToRoom',
-    method: 'roomNotification',
-    data: dataAsBytes({
-      type: 'messageLiked',
-      message: {
-        id: data.id,
-        username: data.username,
-        message: data.message,
-      },
-    }),
-  });
-};
-
-const leaveRoom = (data, socket) => {
-  logEventDetails('commentMessage', data);
-  publish(userData.room, socket, {
-    type: 'allConnectedToRoom',
-    method: 'roomNotification',
-    data: dataAsBytes({
-      type: 'userLeftRoom',
-      username: data.username, // String
-    }),
-  });
-};
 
 io.sockets.on('connection', socket => {
   console.log(`User ${socket.id} connected to open socket`);
@@ -119,40 +36,41 @@ io.sockets.on('connection', socket => {
   }
   io.sockets.emit(
     'totalUsers',
-    dataAsBytes({
+    Converter.dataAsBytes({
       totalUsers: Object.keys(io.sockets.sockets).length,
     }),
   );
   socket.on('joinRoom', data => {
-    data = fromBytesToObject(data);
-    logEventDetails('joinRoom', data);
+    data = Converter.fromBytesToObject(data);
     const allRooms = Object.keys(io.sockets.adapter.rooms);
     console.log('allRooms', allRooms);
     if (!allRooms.includes(data.roomID)) {
-      io.emit('error', dataAsBytes({ message: 'Room does not exist!' }));
+      io.emit(
+        'error',
+        Converter.dataAsBytes({ message: 'Room does not exist!' }),
+      );
       return;
     }
-    joinRoom(socket, data);
-    publish(userData.room, socket, {
+    Room.joinRoom(socket, data, userData, config.logEventDetails);
+    Room.publish(userData.room, socket, {
       type: 'allConnectedToRoom',
       method: 'message',
       data: `User ${data.username} has entered the room`,
     });
   });
   socket.on('createRoom', data => {
-    data = fromBytesToObject(data);
-    logEventDetails('createRoom', data);
-    joinRoom(socket, data);
+    data = Converter.fromBytesToObject(data);
+    Room.joinRoom(socket, data, userData, config.logEventDetails);
   });
   socket.on('roomEvent', data => {
-    data = fromBytesToObject(data);
+    data = Converter.fromBytesToObject(data);
     switch (data.type) {
       case 'sendMessage':
-        return sendMessage(data, socket);
+        return Room.sendMessage(socket, data, userData, config.logEventDetails);
       case 'likeMessage':
-        return likeMessage(data, socket);
+        return Room.likeMessage(socket, data, userData, config.logEventDetails);
       case 'leaveRoom':
-        return leaveRoom(data, socket);
+        return Room.leaveRoom(socket, data, userData, config.logEventDetails);
     }
   });
 });

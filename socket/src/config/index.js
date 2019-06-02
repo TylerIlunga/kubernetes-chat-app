@@ -1,18 +1,13 @@
 module.exports = {
-  jwt: {
-    J_SECRET: process.env.J_SECRET || 'takeover2020s',
-  },
   port: process.env.PORT || '2222',
   redis: {
     host: process.env.REDISHOST || 'localhost',
     port: process.env.REDISPORT || 6379,
   },
-  session: {
-    S_SECRET: process.env.S_SECRET || 'takeoverthe2020s',
+  logEventDetails: (eventName, data) => {
+    console.log(`${eventName} event fired: `, data);
   },
-  web_base: 'http://127.0.0.1:4444',
   fromUTF8Array: data => {
-    // array of bytes
     var str = '',
       i;
 
@@ -34,7 +29,6 @@ module.exports = {
         );
         i += 2;
       } else {
-        // surrogate pair
         var charCode =
           (((value & 0x07) << 18) |
             ((data[i + 1] & 0x3f) << 12) |
