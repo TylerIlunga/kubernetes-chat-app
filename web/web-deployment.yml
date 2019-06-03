@@ -1,8 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: chat-web-service
+spec:
+  selector:
+    app: chat-web-pod
+  ports:
+  - port: 32020
+    nodePort: 32020
+    targetPort: chat-w-port
+    protocol: TCP
+  type: NodePort
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: chat-web-deployment
 spec:
+  replicas: 3
   selector:
     matchLabels:
       app: chat-web-pod
@@ -13,7 +28,7 @@ spec:
     spec:
       containers:
       - name: chat-web-container
-        image: tylerilunga/chatapp:web1.0
+        image: tylerilunga/chatapp:web1.1
         resources:
           limits:
             memory: "128Mi"
