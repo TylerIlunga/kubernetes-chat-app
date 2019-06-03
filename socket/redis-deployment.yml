@@ -1,14 +1,14 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: chat-web-service
+  name: chat-redis-service
 spec:
   selector:
-    app: chat-web-pod
+    app: chat-redis-pod
   ports:
   - port: 80
-    nodePort: 32020
-    targetPort: 4444
+    nodePort: 32121
+    targetPort: 3333
     protocol: TCP
     name: http
   type: NodePort
@@ -16,24 +16,24 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chat-web-deployment
+  name: chat-redis-deployment
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
-      app: chat-web-pod
+      app: chat-redis-pod
   template:
     metadata:
       labels:
-        app: chat-web-pod
+        app: chat-redis-pod
     spec:
       containers:
-      - name: chat-web-container
-        image: tylerilunga/chatapp:web1.1
+      - name: chat-redis-container
+        image: redis
         resources:
           limits:
             memory: "128Mi"
             cpu: "300m"
         ports:
-        - name: chat-w-port
-          containerPort: 4444
+        - name: chat-r-port
+          containerPort: 3333
